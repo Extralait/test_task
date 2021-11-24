@@ -1,7 +1,13 @@
+from decimal import Decimal
+
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.safestring import mark_safe
+from model_utils import FieldTracker
+from django.core.validators import MaxValueValidator, MinValueValidator
+
+from api.utils.calculating_distance import calculate_distance
 
 
 class UserManager(BaseUserManager):
@@ -64,9 +70,24 @@ class User(AbstractUser):
     avatar = models.ImageField(upload_to='avatar', verbose_name='avatar', null=True, blank=True)
 
     subscriptions = models.ManyToManyField('self', related_name='subscribers', verbose_name='Subscriptions',
-                                           symmetrical=False,through='UserSubscription')
+                                           symmetrical=False, through='UserSubscription')
+    distances = models.ManyToManyField('self', related_name='distance', verbose_name='Subscriptions',
+                                           symmetrical=True, through='Distance')
+
+    longitude = models.DecimalField('Longitude',max_digits=9, decimal_places=6, default=Decimal('0'),
+                                    validators=[
+                                        MaxValueValidator(180),
+                                        MinValueValidator(-180)
+                                    ])
+    latitude = models.DecimalField('Latitude',max_digits=9, decimal_places=6, default=Decimal('0'),
+                                   validators=[
+                                       MaxValueValidator(90),
+                                       MinValueValidator(-90)
+                                   ])
 
     updated_at = models.DateTimeField(auto_now=True)
+
+    tracker = FieldTracker(fields=['longitude', 'latitude'])
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name', 'gender', 'avatar']
@@ -75,6 +96,10 @@ class User(AbstractUser):
     class Meta:
         verbose_name = 'User'
         verbose_name_plural = 'Users'
+
+        indexes = [
+            models.Index(fields=['longitude', 'latitude']),
+        ]
 
     def avatar_tag(self):
         return mark_safe('<img src="/media/%s" width="150" height="150" />' % self.avatar)
@@ -94,6 +119,9 @@ class User(AbstractUser):
 
 
 class UserSubscription(models.Model):
+    """
+    Подписки на пользователей
+    """
     subscriber = models.ForeignKey(User, related_name="subscriber", verbose_name="Subscriber",
                                    on_delete=models.CASCADE)
     subscribe = models.ForeignKey(User, related_name="subscribe", verbose_name="Subscribe",
@@ -107,3 +135,36 @@ class UserSubscription(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['subscriber', 'subscribe'], name='unique_user_subscriber')
         ]
+
+
+class Distance(models.Model):
+    """
+    Расстояние между пользователями
+    """
+    pk_pair = models.CharField('PK pair',unique=True, default='1&2', blank=True, max_length=256, primary_key=True)
+    user_1 = models.ForeignKey(User, related_name="user_1", verbose_name="User 1",
+                               on_delete=models.CASCADE)
+    user_2 = models.ForeignKey(User, related_name="user_2", verbose_name="User 2",
+                               on_delete=models.CASCADE)
+    user_1_longitude = models.DecimalField('User 1 longitude',max_digits=9, decimal_places=6, default=Decimal('0'))
+    user_1_latitude = models.DecimalField('User 1 latitude',max_digits=9, decimal_places=6, default=Decimal('0'))
+    user_2_longitude = models.DecimalField('User 2 longitude',max_digits=9, decimal_places=6, default=Decimal('0'))
+    user_2_latitude = models.DecimalField('User 1 latitude',max_digits=9, decimal_places=6, default=Decimal('0'))
+    distance = models.DecimalField('Distance',max_digits=11, decimal_places=6, default=Decimal('0'))
+
+    class Meta:
+        verbose_name = 'Distance'
+        verbose_name_plural = 'Distances'
+
+    def save(self, *args, **kwargs):
+        """
+        Обработка полей перед сохранением модели
+        """
+        self.pk_pair = (f'{min([self.user_1.pk,self.user_2.pk])}&'
+                        f'{max([self.user_1.pk,self.user_2.pk])}')
+        self.distance = calculate_distance(self.user_1_longitude,
+                                           self.user_1_latitude,
+                                           self.user_2_longitude,
+                                           self.user_2_latitude)
+        print(self.distance)
+        super().save(*args, **kwargs)
