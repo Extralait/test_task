@@ -2,8 +2,6 @@ from django.contrib.auth.models import Group, Permission
 from rest_framework import serializers
 from djoser.serializers import User
 
-from api.models import Distance
-
 
 class UserAdditionalSerializer(serializers.ModelSerializer):
     """
@@ -15,13 +13,13 @@ class UserAdditionalSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
 
-    def get_subscriptions_quantity(self, obj):
+    def get_subscriptions_quantity(self,obj):
         """
         Получить количество подписок
         """
         return obj.subscriptions.count()
 
-    def get_subscribers_quantity(self, obj):
+    def get_subscribers_quantity(self,obj):
         """
         Получить количество подписчиков
         """
@@ -32,27 +30,25 @@ class UserSerializer(serializers.ModelSerializer):
     """
     Пользователь (сериализатор)
     """
-
     def __init__(self, *args, **kwargs):
         kwargs['partial'] = True
         super(UserSerializer, self).__init__(*args, **kwargs)
 
     class Meta:
         model = User
-        fields = ['id', 'email', 'first_name', 'last_name', 'gender', 'avatar']
+        fields = ['id','email','first_name','last_name','gender','avatar']
 
-        read_only_fields = ['id', 'email']
+        read_only_fields = ['id','email']
 
 
-class UserDetailsSerializer(UserAdditionalSerializer, UserSerializer):
+class UserDetailsSerializer(UserAdditionalSerializer,UserSerializer):
     """
     Детали пользователя (сериализатор)
     """
-
     class Meta:
         model = User
-        exclude = ['password', 'subscriptions']
-        read_only_fields = ['email', 'last_login', 'date_joined', 'updated_at']
+        exclude = ['password','subscriptions']
+        read_only_fields = ['email','last_login','date_joined','updated_at']
 
 
 class CurrentUserDetailsSerializer(UserDetailsSerializer):
@@ -73,24 +69,16 @@ class CurrentUserDetailsSerializer(UserDetailsSerializer):
             try:
                 instance.user_permissions.set(validated_data.get('user_permissions', instance.user_permissions))
             except TypeError:
-                instance.user_permissions.set(Permission.objects.none())
+                instance.tags.set(Permission.objects.none())
             try:
                 instance.groups.set(validated_data.get('groups', instance.groups))
             except TypeError:
-                instance.groups.set(Group.objects.none())
+                instance.tags.set(Group.objects.none())
 
         instance.first_name = validated_data.get('first_name', instance.first_name)
         instance.last_name = validated_data.get('last_name', instance.last_name)
         instance.avatar = validated_data.get('avatar', instance.avatar)
         instance.gender = validated_data.get('gender', instance.gender)
-        instance.latitude = validated_data.get('latitude', instance.latitude)
-        instance.longitude = validated_data.get('longitude', instance.longitude)
 
         instance.save()
         return instance
-
-
-class DistanceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Distance
-        fields = '__all__'
