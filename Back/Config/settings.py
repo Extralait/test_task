@@ -133,6 +133,7 @@ INSTALLED_APPS = [
     # 'django_celery_results',
     # 'djcelery_email',
     # 'django_prometheus',
+    'django_filters',
     'corsheaders',
 ]
 
@@ -234,6 +235,11 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
         "rest_framework.authentication.SessionAuthentication"
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        "url_filter.integrations.drf.DjangoFilterBackend",
+        "rest_framework.filters.SearchFilter",
+        "rest_framework.filters.OrderingFilter",
     ],
 }
 
