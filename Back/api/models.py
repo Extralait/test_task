@@ -50,6 +50,7 @@ class User(AbstractUser):
     """
     Пользователь (Модель)
     """
+
     class Gender(models.TextChoices):
         """
         Пол
@@ -62,10 +63,13 @@ class User(AbstractUser):
     gender = models.CharField('Gender', max_length=20, choices=Gender.choices)
     avatar = models.ImageField(upload_to='avatar', verbose_name='avatar', null=True, blank=True)
 
+    subscriptions = models.ManyToManyField('self', related_name='subscribers', verbose_name='Subscriptions',
+                                           symmetrical=False,through='UserSubscription')
+
     updated_at = models.DateTimeField(auto_now=True)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name','last_name','gender','avatar']
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'gender', 'avatar']
     objects = UserManager()
 
     class Meta:
@@ -87,3 +91,19 @@ class User(AbstractUser):
         self.first_name = self.first_name.capitalize()
         self.last_name = self.last_name.capitalize()
         super().save(*args, **kwargs)
+
+
+class UserSubscription(models.Model):
+    subscriber = models.ForeignKey(User, related_name="subscriber", verbose_name="Subscriber",
+                                   on_delete=models.CASCADE)
+    subscribe = models.ForeignKey(User, related_name="subscribe", verbose_name="Subscribe",
+                                  on_delete=models.CASCADE)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'User subscription'
+        verbose_name_plural = 'Users subscription'
+        constraints = [
+            models.UniqueConstraint(fields=['subscriber', 'subscribe'], name='unique_user_subscriber')
+        ]

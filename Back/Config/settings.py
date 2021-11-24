@@ -16,9 +16,9 @@ if os.path.isfile(dotenv_file):
 # Базовые настройки приложения
 SECRET_KEY = os.getenv('SECRET_KEY')
 
-DEBUG = os.getenv('DEBUG')
+DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 't')
 
-PRODUCTION = os.getenv('PRODUCTION')
+PRODUCTION = os.getenv('PRODUCTION', 'True').lower() in ('true', '1', 't')
 
 ROOT_URLCONF = 'Config.urls'
 
@@ -55,11 +55,11 @@ LANGUAGE_CODE = os.getenv('LANGUAGE_CODE')
 
 TIME_ZONE = os.getenv('TIME_ZONE')
 
-USE_I18N = os.getenv('USE_I18N')
+USE_I18N = os.getenv('USE_I18N', 'True').lower() in ('true', '1', 't')
 
-USE_L10N = os.getenv('USE_L10N')
+USE_L10N = os.getenv('USE_L10N', 'True').lower() in ('true', '1', 't')
 
-USE_TZ = os.getenv('USE_TZ')
+USE_TZ = os.getenv('USE_TZ', 'True').lower() in ('true', '1', 't')
 
 # Базовые настройки базы данных
 DB_USER = os.getenv('DB_USER')
@@ -113,6 +113,7 @@ ADMINS = [
         'gender': os.getenv('ADMIN_GENDER'),
         'email': os.getenv('ADMIN_EMAIL'),
         'password': os.getenv('ADMIN_PASSWORD'),
+        'avatar': None
     }
 ]
 
@@ -243,7 +244,7 @@ DJOSER = {
     'SEND_ACTIVATION_EMAIL': False,
     'SEND_CONFIRMATION_EMAIL': False,
     'TOKEN_MODEL': None,
-    'HIDE_USERS': True,
+    'HIDE_USERS': False,
     'SERIALIZERS': {},
     'PERMISSIONS': {
         'activation': ['rest_framework.permissions.AllowAny'],

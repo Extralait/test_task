@@ -2,7 +2,10 @@ from django.conf.urls import url
 from django.urls import path, include
 from rest_framework import routers
 
+from api.views import UserProfileViewSet
+
 router = routers.DefaultRouter()
+router.register(r'users', UserProfileViewSet)
 
 urlpatterns = [
     # djoser auth urls

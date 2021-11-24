@@ -11,3 +11,5 @@ def add_watermark(image):
     image = Image.open(image)
     image.paste(watermark, (image.size[0] - watermark.size[0], image.size[1] - watermark.size[1]), watermark)
     image.save(os.path.join(MEDIA_ROOT, image_path))
+
+
