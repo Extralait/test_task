@@ -103,12 +103,12 @@ http://159.89.37.210/api/users/?distance=1000
 ```sh
 # POST ожидает 
     {
-    "first_name": "",
-    "last_name": "",
-    "gender": null,
-    "avatar": null,
-    "email": "",
-    "password": ""
+    "first_name": <str>,
+    "last_name": <str>,
+    "gender": <str>, (male|female)
+    "avatar": <image>,
+    "email": <str(email)>,
+    "password": <str>
     }
 ```
 #### Получение JWT токена
@@ -117,7 +117,7 @@ http://159.89.37.210/api/users/?distance=1000
 ```sh
 # POST ожидает
     {
-        "wallet_number": <str>,
+        "email": <str>,
         "password": <str>
     }
     # возвращает
@@ -143,22 +143,22 @@ http://159.89.37.210/api/users/?distance=1000
 ```sh
 # GET возвращает
     {
-        "id": 1,
-        "subscribers_quantity": 0,
-        "subscriptions_quantity": 0,
-        "last_login": "2021-11-25T01:00:23.493580+03:00",
+        "id": <int>,
+        "subscribers_quantity": <int>,
+        "subscriptions_quantity": <int>,
+        "last_login": <str(datetime)>,
         "is_superuser": true,
-        "first_name": "Valery",
-        "last_name": "Abbakumov",
-        "is_staff": true,
-        "is_active": true,
-        "date_joined": "2021-11-25T00:58:54.435460+03:00",
-        "email": "example@gmail.com",
-        "gender": "male",
-        "avatar": null,
-        "longitude": "0.000000",
-        "latitude": "0.000000",
-        "updated_at": "2021-11-25T00:58:54.792990+03:00",
+        "first_name": <str>,
+        "last_name": <str>,
+        "is_staff": <bool>,
+        "is_active": <bool>,
+        "date_joined": <str(datetime)>,
+        "email": <str(email)>,
+        "gender": <str>, (male|female)
+        "avatar": <str(image_path)>,
+        "longitude": <str(decimal)>,
+        "latitude": <str(decimal)>,
+        "updated_at": <str(datetime)>,
         "groups": [],
         "user_permissions": [],
   }
@@ -170,18 +170,18 @@ http://159.89.37.210/api/users/?distance=1000
 ```sh
 # PUT,PATCH принимают
     {
-        "id": 1,
-        "is_superuser": true,
-        "first_name": "Valery",
-        "last_name": "Abbakumov",
-        "is_staff": true,
-        "is_active": true,
-        "gender": "male",
-        "avatar": null,
-        "longitude": "0.000000",
-        "latitude": "0.000000",
-        "groups": [],
-        "user_permissions": [],
+        "id": <int>,
+        "is_superuser": <bool>,
+        "first_name": <str>,
+        "last_name": <str>,
+        "is_staff": <bool>,
+        "is_active": <bool>,
+        "gender": <str>, (male|female)
+        "avatar": <image>,
+        "longitude": <decimal>,
+        "latitude": <decimal>,
+        "groups": <array(int)>,
+        "user_permissions": <array(int)>,
    }
    # Экстра поля для staff
    {
@@ -201,7 +201,7 @@ http://159.89.37.210/api/users/?distance=1000
 ```sh
 # GET возвращает
     {
-        "detail": "Impossible to match to yourself"
+        'is_subscribed': <bool>
     }
 # POST (без тела) подписывает на пользователя
 # DELETE отменяет подписку на пользователя
