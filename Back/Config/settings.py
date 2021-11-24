@@ -22,7 +22,7 @@ PRODUCTION = os.getenv('PRODUCTION', 'True').lower() in ('true', '1', 't')
 
 ROOT_URLCONF = 'Config.urls'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(' ')
+ALLOWED_HOSTS = ["159.89.37.210", "host.docker.internal", "127.0.0.1", "localhost", "back", "web"]
 
 LOGGING_CONFIG = None
 
