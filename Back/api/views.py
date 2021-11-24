@@ -1,3 +1,6 @@
+from decimal import Decimal
+
+from django.db.models import Q
 from djoser.permissions import CurrentUserOrAdmin
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -5,9 +8,9 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from api.models import User
+from api.models import User, Distance
 from api.permissions import NoBody
-from api.serializers import UserSerializer, UserDetailsSerializer, CurrentUserDetailsSerializer
+from api.serializers import UserSerializer, UserDetailsSerializer, CurrentUserDetailsSerializer, DistanceSerializer
 from api.services.subscribers import check_subscribe, add_subscribe, delete_subscribe
 from api.utils.field_transformation import get_no_files_fields
 
@@ -16,6 +19,11 @@ class SmallResultsSetPagination(PageNumberPagination):
     page_size = 60
     page_size_query_param = 'page_size'
     max_page_size = 60
+
+
+class DistanceViewset(viewsets.ModelViewSet):
+    queryset = Distance.objects.all()
+    serializer_class = DistanceSerializer
 
 
 class UserProfileViewSet(viewsets.ModelViewSet):
@@ -28,6 +36,17 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         detail_user_pk = self.kwargs.get('pk')
         current_user_pk = self.request.user.pk
         return int(detail_user_pk) == current_user_pk
+
+    def filter_queryset(self, queryset):
+        user = self.request.user
+        distance = self.request.query_params.get('distance')
+        if distance:
+            queryset = queryset.filter(
+                Q(user_1__distance__lte=Decimal(str(distance))) |
+                Q(user_2__distance__lte=Decimal(str(distance))),
+            ).filter(~Q(pk=user.pk))
+            print(queryset)
+        return queryset
 
     def get_permissions(self):
         """
@@ -56,7 +75,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 
         return serializer_class
 
-    @action(detail=True, methods=['get'], name='Match',permission_classes=(IsAuthenticated,))
+    @action(detail=True, methods=['get'], name='Match', permission_classes=(IsAuthenticated,))
     def match(self, request, **kwargs):
         """
         Проверка подписки участника
