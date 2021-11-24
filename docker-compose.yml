@@ -64,7 +64,7 @@ services:
       - static_volume:/home/app/web/static
       - media_volume:/home/app/web/data
     ports:
-      - "90:90"
+      - "80:80"
     depends_on:
       - web
     networks:
