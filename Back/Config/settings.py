@@ -251,7 +251,9 @@ DJOSER = {
     'SEND_CONFIRMATION_EMAIL': False,
     'TOKEN_MODEL': None,
     'HIDE_USERS': False,
-    'SERIALIZERS': {},
+    'SERIALIZERS': {
+        'current_user': 'api.serializers.user.CurrentUserDetailsSerializer',
+    },
     'PERMISSIONS': {
         'activation': ['rest_framework.permissions.AllowAny'],
         'password_reset': ['rest_framework.permissions.AllowAny'],

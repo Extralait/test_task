@@ -51,7 +51,7 @@ class UserDetailsSerializer(UserAdditionalSerializer, UserSerializer):
 
     class Meta:
         model = User
-        exclude = ['password', 'subscriptions']
+        exclude = ['password', 'subscriptions','distances']
         read_only_fields = ['email', 'last_login', 'date_joined', 'updated_at']
 
 
